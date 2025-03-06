@@ -1,5 +1,5 @@
 # tmip_animations
-Submissions for the Talking Maths in Public - Animation Generation Collaboration
+Submissions for the Talking Maths in Public - Animation Generation Collaboration.
 
 ## License
 CindyJS (https://github.com/CindyJS/CindyJS) is under an Apache 2.0 License.
