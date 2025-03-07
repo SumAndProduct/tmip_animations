@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>001_circle_sine</title>
+    <script type="text/javascript" src="Cindy.js"></script>
+    <!-- <script type="text/javascript" src="CindyGL.js"></script> -->
+  </head>
+
+<body>
+
+
+
+<script id='csinit' type='text/x-cindyscript'>
+showDebugInfo = false;
+renderMode = RENDERMODES.REAL;
+
+startDelay = 0.1;
+pause = if(renderMode == RENDERMODES.FRAMES, 1, 0.1);
+trackData = [
+  1, pause,    // 01    draw coordinate systems and circle
+  1, pause,    // 02    draw points
+  3, pause    // 03    turn point
+];
+
+white = (1,1,1);
+red = (0.8, 0.2, 0.3);
+graphColor = (0.3, 0.4, 0.8);
+black = (0,0,0);
+
+
+scale = 5;
+strokeSampleRate = 512;
+
+
+// Left 
+originLeft = canvasCenter + [-17, 0];
+xAxisLeft = [(-1.1, 0), (1.2, 0)];
+yAxisLeft = [(0, -1.1), (0, 1.2)];
+circle = apply(sampleCircle(scale), # + originLeft);
+angleIndicator = apply(sampleCircle(scale * 0.25), # + originLeft);
+
+
+// Right
+originRight = canvasCenter + [-10, 0];
+
+xAxisRight = [(0, 0), (6.5, 0)];
+yAxisRight = [(0, -1.1), (0, 1.2)];
+
+xLabels = ["$\frac{1}{2}\pi$", "$\pi$", "$\frac{3}{2}\pi$", "$2\pi$"];
+
+
+
+
+delayedSetup() := (
+
+);
+
+
+calculation() := (
+  circleIndex = lerp(1, strokeSampleRate, easeInOutCubic(t1));
+
+  angle = lerp(0°, 360°, t3);
+  pointA = originLeft + scale * ang2vec(angle);
+  indicatorIndex = lerp(1, strokeSampleRate, t3);
+
+  pointB = originRight + scale * [angle, sin(angle)];
+);
+
+rendering() := (
+  fillpoly(canvasPoly, color -> white);
+  // Left
+  startPoint = originLeft + scale * xAxisLeft_1;
+  endPoint = lerp(startPoint, originLeft + scale * xAxisLeft_2, easeInOutCubic(t1));
+  draw(startPoint, endPoint, size -> 3 * easeOutCirc(t1), color -> 0.5 * white, arrow -> t1 > 0, arrowsize -> 1 * easeInOutCubic(t1));
+
+  startPoint = originLeft + scale * yAxisLeft_1;
+  endPoint = lerp(startPoint, originLeft + scale * yAxisLeft_2, easeInOutCubic(t1));
+  draw(startPoint, endPoint, size -> 3 * easeOutCirc(t1), color -> 0.5 * white, arrow -> t1 > 0, arrowsize -> 1 * easeInOutCubic(t1));
+
+  connect(circle_(1..circleIndex), size -> 3 * easeOutCirc(t1), color -> 0.5 * white);
+
+   // Right
+  startPoint = originRight + scale * xAxisRight_1;
+  endPoint = lerp(startPoint, originRight + scale * xAxisRight_2, easeInOutCubic(t1));
+  draw(startPoint, endPoint, size -> 3 * easeOutCirc(t1), color -> 0.5 * white, arrow -> t1 > 0, arrowsize -> 1 * easeInOutCubic(t1));
+
+  startPoint = originRight + scale * yAxisRight_1;
+  endPoint = lerp(startPoint, originRight + scale * yAxisRight_2, easeInOutCubic(t1));
+  draw(startPoint, endPoint, size -> 3 * easeOutCirc(t1), color -> 0.5 * white, arrow -> t1 > 0, arrowsize -> 1 * easeInOutCubic(t1));
+
+  offset = [0, easeInOutCubic(t1) * 0.4];
+  forall(1..4,
+    anchor = originRight + scale * [90° * #, 0];
+    draw(anchor + offset, anchor - offset, size -> 3 * easeOutCirc(t1), color -> 0.5 * white);
+    if(t1 > 0,
+      drawtext(anchor - offset + [0, -1], xLabels_#, align -> "mid", color -> 0.3 * white, size -> 20 * t1);
+    );
+  );
+  offset = [easeInOutCubic(t1) * 0.4, 0];
+  forall([-1, 1],
+    anchor = originRight + scale * [0, #];
+    draw(anchor + offset, anchor - offset, size -> 3 * easeOutCirc(t1), color -> 0.5 * white);
+    if(t1 > 0,
+      drawtext(anchor - offset + [-0.5, -0.3], "$" + # + "$", align -> "right", color -> 0.3 * white, size -> 20 * t1);
+    );
+  );
+
+  
+  draw([min(pointA.x, originLeft.x), pointA.y], pointB, size -> 3, color -> black, dashtype -> 1, alpha -> t2);
+
+
+  // Left
+  fillpoly(angleIndicator_(1..indicatorIndex) :> originLeft, color -> red, alpha -> 0.5);
+
+  draw(originLeft, pointA, size -> 5 * easeOutBack(t2), color -> red);
+  fillcircle(pointA, 0.3 * easeOutBack(t2), color -> red);
+  if(t2 > 0,
+    drawcircle(pointA, 0.3 * easeOutBack(t2), color -> white, size -> 2 * easeOutCirc(t2));
+  );
+  
+  draw(originLeft, [originLeft.x, pointA.y], size -> 7 * t2, color -> graphColor);
+
+  fillcircle(originLeft, 0.2 * easeOutBack(t1), color -> black);
+
+
+  // Right
+  plot(scale * sin((x - originRight.x) / scale) + originRight.y, size -> 5, color -> graphColor, start -> originRight.x, stop -> pointB.x);
+
+  fillcircle(pointB, 0.3 * easeOutBack(t2), color -> graphColor);
+  if(t2 > 0,
+    drawcircle(pointB, 0.3 * easeOutBack(t2), color -> white, size -> 2 * easeOutCirc(t2));
+  );
+);
+</script>
+
+
+
+
+<canvas id="CSCanvas" align="left" valign="top" width="1200" height="600" style="border:1px solid #000000;"></canvas>
+
+
+
+
+
+
+<script>
+
+var cindy = CindyJS({
+  canvasname:"CSCanvas",
+  scripts:"cs*",
+  images: {},
+  use: ["katex"],
+  import: {
+    "packages": ["animation"]
+  }
+});
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>
