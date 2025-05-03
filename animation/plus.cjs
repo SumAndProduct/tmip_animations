@@ -3,6 +3,12 @@ defaultPointColor = [1,0,0];
 defaultLineColor = [0,0,1];
 defaultStrokeColor = [0,0,1];
 defaultTextColor = [0,0,0];
+defaultPointSize = 1;
+defaultLineSize = 10;
+defaultOutlineSizePixel = 10;
+defaultArrowSize = 5;
+defaultTextSize = 120;
+
 
 
 /**********************************************************************************************************************************************************
@@ -29,7 +35,7 @@ newPoint(pos, modifs) := (
     res = {
         "type":              "point",
         "position":          pos,
-        "size":              if(contains(keys, "size"), modifs.size, pointSizePrimary),
+        "size":              if(contains(keys, "size"), modifs.size, defaultPointSize),
         "color":             if(contains(keys, "color"), modifs.color, defaultPointColor),
         "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, outlineSizeCindy),
         "outlineColor":      if(contains(keys, "outlineColor"), modifs.outlineColor, defaultBackgroundColor),
@@ -67,14 +73,14 @@ newLine(pointA, pointB, modifs) := (
     res = {
         "type":              "line",
         "endPoints":         [if(contains(keys(pointA), "position"), pointA.position, pointA), if(contains(keys(pointB), "position"), pointB.position, pointB)],
-        "size":              if(contains(keys, "size"), modifs.size, lineSizePrimary),
+        "size":              if(contains(keys, "size"), modifs.size, defaultLineSize),
         "color":             if(contains(keys, "color"), modifs.color, defaultLineColor),
-        "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, outlineSizePixel),
+        "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, defaultOutlineSizePixel),
         "outlineColor":      if(contains(keys, "outlineColor"), modifs.outlineColor, defaultBackgroundColor),
         "overshoot":         if(contains(keys, "overshoot"), modifs.overshoot, 0),
         "dashType":          if(contains(keys, "dashType"), modifs.dashType, 0),
         "arrow":             if(contains(keys, "arrow"), modifs.arrow, [false, false]),
-        "arrowSize":         if(contains(keys, "arrowSize"), modifs.arrowSize, arrowTipSize),
+        "arrowSize":         if(contains(keys, "arrowSize"), modifs.arrowSize, defaultArrowSize),
         "arrowShape":        if(contains(keys, "arrowShape"), modifs.arrowShape, "line"),
         "fadeIn":            if(contains(keys, "fadeIn"), modifs.fadeIn, 1),
         "fadeOut":           if(contains(keys, "fadeOut"), modifs.fadeOut, 0),
@@ -121,15 +127,15 @@ newStroke(list, modifs) := (
         "type":              "stroke",
         "points":            list,
         "length":            length(list),
-        "size":              if(contains(keys, "size"), modifs.size, lineSizePrimary),
+        "size":              if(contains(keys, "size"), modifs.size, defaultLineSize),
         "color":             if(contains(keys, "color"), modifs.color, defaultStrokeColor),
-        "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, outlineSizePixel),
+        "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, defaultOutlineSizePixel),
         "outlineColor":      if(contains(keys, "outlineColor"), modifs.outlineColor, defaultBackgroundColor),
         "fillColor":         if(contains(keys, "fillColor"), modifs.fillColor, defaultBackgroundColor),
         "fillAlpha":         if(contains(keys, "fillAlpha"), modifs.fillAlpha, 0),
         "dashType":          if(contains(keys, "dashType"), modifs.dashType, 0),
         "arrow":             if(contains(keys, "arrow"), modifs.arrow, [false, false]),
-        "arrowSize":         if(contains(keys, "arrowSize"), modifs.arrowSize, arrowTipSize),
+        "arrowSize":         if(contains(keys, "arrowSize"), modifs.arrowSize, defaultArrowSize),
         "arrowShape":        if(contains(keys, "arrowShape"), modifs.arrowShape, "line"),
         "fadeIn":            if(contains(keys, "fadeIn"), modifs.fadeIn, 1),
         "fadeOut":           if(contains(keys, "fadeOut"), modifs.fadeOut, 0),
@@ -345,7 +351,7 @@ newStroke(list) := newStroke(list, {});
 newText(pos, nykaString, modifs) := (
     regional(res, keys, fragments);
     keys = keys(modifs);
-    fragments = fragment(nykaString, if(contains(keys, "size"), modifs.size, textSizeSecondary), if(contains(keys, "family"), modifs.family, fam));
+    fragments = fragment(nykaString, if(contains(keys, "size"), modifs.size, defaultTextSize), if(contains(keys, "family"), modifs.family, fam));
     res = {
         "type":              "text",
         "fragments":         fragments,
@@ -415,10 +421,10 @@ newNode(pos, modifs) := (
         "color":        if(contains(keys, "color"), modifs.color, defaultBackgroundColor),
         "fillAlpha":    if(contains(keys, "fillAlpha"), modifs.fillAlpha, 1),
         "label":        if(contains(keys, "label"), modifs.label, ""),
-        "labelSize":    if(contains(keys, "labelSize"), modifs.labelSize,  textSizeSecondary),
+        "labelSize":    if(contains(keys, "labelSize"), modifs.labelSize,  defaultTextSize),
         "labelColor":   if(contains(keys, "labelColor"), modifs.labelColor, (1,1,1)),
         "labelAlpha":   if(contains(keys, "labelAlpha"), modifs.labelAlpha, 1),
-        "outlineSize":  if(contains(keys, "outlineSize"), modifs.outlineSize, lineSizeSecondary),
+        "outlineSize":  if(contains(keys, "outlineSize"), modifs.outlineSize, defaultLineSize),
         "outlineColor": if(contains(keys, "outlineColor"), modifs.outlineColor, defaultTextColor),
         "corner":       if(contains(keys, "corner"), modifs.corner, 3),
         "family":       if(contains(keys, "family"), modifs.family, fam),
@@ -564,7 +570,7 @@ newEdge(nodeA, nodeB, modifs) := (
 
     sampleRate = if(contains(keys, "sampleRate"), modifs.sampleRate, 32);
     
-    if(!contains(keys, "color"), modifs.color = sapColor.white);
+    if(!contains(keys, "color"), modifs.color = defaultBackgroundColor);
     if(!contains(keys, "arrow"), modifs.arrow = [false, true]);
     if(!contains(keys, "arrowShape"), modifs.arrowShape = "line");
 
