@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>003_pythagoras</title>
+    <script type="text/javascript" src="Cindy.js"></script>
+    <!-- <script type="text/javascript" src="CindyGL.js"></script> -->
+  </head>
+
+<body>
+
+
+
+<script id='csinit' type='text/x-cindyscript'>
+showDebugInfo = false;
+renderMode = RENDERMODES.REAL;
+
+startDelay = 0.3;
+pause = if(renderMode == RENDERMODES.FRAMES, 0.5, 0.1);
+trackData = [
+  1, pause,    // 01    fade in bits
+  1, pause,    // 02    move triangle
+  1, pause,    // 03    move quadrangles
+  1, pause    // 04    move red polygon
+];
+
+white = [1,1,1];
+red = [0.8, 0.2, 0.3];
+green = [0.3, 0.8, 0.2];
+blue = [0.2, 0.3, 0.8];
+black = [0,0,0];
+
+
+
+radius = 5;
+
+p  = canvasCenter + [-radius, 1];
+q = p + [2 * radius, 0];
+r = p + [radius, 0] + ang2vec(120°) * radius;
+triangle = [p, q, r];
+
+a1 = rotate(r - p, 72°) + r;
+a2 = rotate(r - p, 2 * 72°) + a1;
+a3 = rotate(r - p, 3 * 72°) + a2;
+polygonA = [p, r, a1, a2, a3];
+
+b1 = rotate(q - r, 72°) + q;
+b2 = rotate(q - r, 2 * 72°) + b1;
+b3 = rotate(q - r, 3 * 72°) + b2;
+polygonB = [r, q, b1, b2, b3];
+
+c1 = rotate(p - q, 72°) + p;
+c2 = rotate(p - q, 2 * 72°) + c1;
+c3 = rotate(p - q, 3 * 72°) + c2;
+polygonC = [q, p, c1, c2, c3];
+
+
+center = sum(polygonB) / 5;
+x1 = lerp(r, q, 0.5);
+y1 = x1 + (center - x1) / abs(center - x1) * 0.5 * abs(r - p);
+
+tris1 = [r, x1, y1];
+tris2 = apply(tris1, rotate(#, 72°, center));
+tris3 = apply(tris1, rotate(#, 2 * 72°, center));
+tris4 = apply(tris1, rotate(#, 3 * 72°, center));
+tris5 = apply(tris1, rotate(#, 4 * 72°, center));
+
+quad1 = [r, y1, center, tris5_2];
+quad2 = apply(quad1, rotate(#, 72°, center));
+quad3 = apply(quad1, rotate(#, 2 * 72°, center));
+quad4 = apply(quad1, rotate(#, 3 * 72°, center));
+quad5 = apply(quad1, rotate(#, 4 * 72°, center));
+
+
+
+
+
+
+delayedSetup() := ();
+
+
+calculation() := (
+  tris1 = [r, x1, y1];
+  tris2 = apply(tris1, rotate(#, 72°, center));
+  tris3 = apply(tris1, rotate(#, 2 * 72°, center));
+  tris4 = apply(tris1, rotate(#, 3 * 72°, center));
+  tris5 = apply(tris1, rotate(#, 4 * 72°, center));
+
+  quad1 = [r, y1, center, tris5_2];
+  quad2 = apply(quad1, rotate(#, 72°, center));
+  quad3 = apply(quad1, rotate(#, 2 * 72°, center));
+  quad4 = apply(quad1, rotate(#, 3 * 72°, center));
+  quad5 = apply(quad1, rotate(#, 4 * 72°, center));
+
+  polygonAmoveable = polygonA;
+
+  // *****
+
+  displacement = (p - r) * t2;
+  tris1 = apply(tris1, # + displacement);
+  displacement = (c1 - q) * t2;
+  tris2 = apply(tris2, # + displacement);
+  displacement = (c2 - b1) * t2;
+  tris3 = apply(tris3, # + displacement);
+  displacement = (c3 - b2) * t2;
+  tris4 = apply(tris4, # + displacement);
+  displacement = (q - b3) * t2;
+  tris5 = apply(tris5, # + displacement);
+
+  // *****
+
+  displacement = (q - r) * t3;
+  quad1 = apply(quad1, rotate(#, 180° * t3, quad1_1) + displacement);
+  displacement = (p - q) * t3;
+  quad2 = apply(quad2, rotate(#, 180° * t3, quad2_1) + displacement);
+  displacement = (c1 - b1) * t3;
+  quad3 = apply(quad3, rotate(#, 180° * t3, quad3_1) + displacement);
+  displacement = (c2 - b2) * t3;
+  quad4 = apply(quad4, rotate(#, 180° * t3, quad4_1) + displacement);
+  displacement = (c3 - b3) * t3;
+  quad5 = apply(quad5, rotate(#, 180° * t3, quad5_1) + displacement);
+
+  // *****
+
+  displacement = (sum(polygonC) / 5 - sum(polygonA) / 5) * t4;
+  polygonAmoveable = apply(polygonAmoveable, rotate(#, 36° * t4, sum(polygonA) / 5) + displacement);
+
+
+
+);
+
+rendering() := (
+  fillpoly(canvasPoly, color -> white);
+
+  fillpoly(triangle, color -> 0.7 * white);
+  fillpoly(polygonC, color -> blue);
+  fillpoly(polygonB, color -> green, alpha -> if(t1 >= 1, 0, 1));
+
+  drawpoly(triangle, color -> black, size -> 2);
+  drawpoly(polygonB, color -> black, size -> 2);
+  drawpoly(polygonC, color -> black, size -> 2);
+
+
+  if(t2 < 1,
+    fillpoly(quad1, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad2, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad3, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad4, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad5, color -> lerp(green, white, 0.3), alpha -> t1);
+    drawpoly(quad1, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad2, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad3, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad4, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad5, color -> black, size -> 2, alpha -> t1);
+
+
+    fillpoly(tris1, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris2, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris3, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris4, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris5, color -> lerp(green, black, 0.3), alpha -> t1);
+    drawpoly(tris1, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris2, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris3, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris4, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris5, color -> black, size -> 2, alpha -> t1);
+
+  , // else //
+
+    fillpoly(tris1, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris2, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris3, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris4, color -> lerp(green, black, 0.3), alpha -> t1);
+    fillpoly(tris5, color -> lerp(green, black, 0.3), alpha -> t1);
+    drawpoly(tris1, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris2, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris3, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris4, color -> black, size -> 2, alpha -> t1);
+    drawpoly(tris5, color -> black, size -> 2, alpha -> t1);
+
+
+    fillpoly(quad1, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad2, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad3, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad4, color -> lerp(green, white, 0.3), alpha -> t1);
+    fillpoly(quad5, color -> lerp(green, white, 0.3), alpha -> t1);
+    drawpoly(quad1, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad2, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad3, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad4, color -> black, size -> 2, alpha -> t1);
+    drawpoly(quad5, color -> black, size -> 2, alpha -> t1);
+
+
+  );
+
+  
+
+  drawpoly(polygonA, color -> black, size -> 2);
+
+  fillpoly(polygonAmoveable, color -> red);
+  drawpoly(polygonAmoveable, color -> black, size -> 2);
+  
+);
+</script>
+
+
+
+
+<canvas id="CSCanvas" align="left" valign="top" width="1024" height="768" style="border:1px solid #000000;"></canvas>
+
+
+
+
+
+
+<script>
+
+var cindy = CindyJS({
+  canvasname:"CSCanvas",
+  scripts:"cs*",
+  images: {},
+  use: ["katex"],
+  import: {
+    "packages": ["animation"]
+  }
+});
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>
