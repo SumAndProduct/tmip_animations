@@ -75,10 +75,14 @@ rendering() := (
 var cindy = CindyJS({
   canvasname:"CSCanvas",
   scripts:"cs*",
-  images: {},
+  images: {
+    mouse: "./imgs/mouse.svg",
+    owl: "./imgs/owl.svg"
+  },
   use: ["katex"],
   import: {
-    packages: ["animation"]
+    packages: ["animation"],
+    init: ["color", "sap"]
   }
 });
 
