@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>004_pursuit</title>
+    <script type="text/javascript" src="Cindy.js"></script>
+    <!-- <script type="text/javascript" src="CindyGL.js"></script> -->
+  </head>
+
+<body>
+
+
+
+<script id='csinit' type='text/x-cindyscript'>
+showDebugInfo = false;
+renderMode = RENDERMODES.REAL;
+
+startDelay = 0.3;
+pause = if(renderMode == RENDERMODES.FRAMES, 1, 0.1);
+trackData = [
+  1, pause,    // 01    draw arena
+  1.5, 4.5,    // 02    draw mice & start mice at the end
+  0.1, pause    // 03    stop mice at start
+];
+
+
+white = [1,1,1];
+red = [0.8, 0.2, 0.3];
+green = [0.3, 0.8, 0.2];
+blue = [0.2, 0.3, 0.8];
+black = [0,0,0];
+
+
+
+newEntity(pos, maxSpeed) := {
+  "position": pos,
+  "velocity": [0, 0],
+  "maxSpeed": maxSpeed,
+  "target": 0,
+  "trail": [pos]
+};
+
+
+numberOfCorners = 6;
+arena = apply(1..numberOfCorners,
+  canvasCenter + 11 * ang2vec(360° / numberOfCorners * #);
+);
+
+entities = [];
+
+mouseSpeed = 4;
+
+forall(arena,
+  entities = entities :> newEntity(#, mouseSpeed);
+);
+forall(1..numberOfCorners,
+  entities_#.target = entities_(mod(#, numberOfCorners) + 1);
+);
+
+
+trailCounterMax = 5;
+trailCounter = trailCounterMax;
+
+
+
+calculation() := (
+  trailCounter = trailCounter - 1;
+
+  forall(entities,
+    dir = #.target.position - #.position;
+    #.velocity = #.maxSpeed * if(abs(dir) == 0, [0,0], dir / abs(dir));
+  );
+  forall(entities,
+    #.position = #.position + if(t2 >= 1 & t3 == 0, 1, 0) * delta * #.velocity;
+  );
+  if(trailCounter <= 0,
+    trailCounter = trailCounterMax;
+    forall(entities,
+      #.trail = #.trail :> #.position;
+    );
+  );
+);
+
+rendering() := (
+  connect(animatePolygon(arena :> arena_1, t1), color -> black, size -> 2 * easeOutCirc(t1));
+  ladder = ladder(2, numberOfCorners, 0.5);
+  forall(entities,
+    if(t2 >= 1, connect(#.trail, color -> sapColor.violet1, size -> 5););
+  );
+  forall(entities,
+    drawimage(#.position, "mouse", scale -> easeOutBack(ladder.doStep));
+  );
+
+);
+</script>
+
+
+
+
+<canvas id="CSCanvas" align="left" valign="top" width="1024" height="768" style="border:1px solid #000000;"></canvas>
+
+
+
+
+
+
+<script>
+
+var cindy = CindyJS({
+  canvasname:"CSCanvas",
+  scripts:"cs*",
+  images: {
+    mouse: "./imgs/mouse.svg",
+    owl: "./imgs/owl.svg"
+  },
+  use: ["katex"],
+  import: {
+    packages: ["animation"],
+    init: ["color", "sap"]
+  }
+});
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>

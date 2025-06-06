@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>004_pursuit</title>
+    <script type="text/javascript" src="Cindy.js"></script>
+    <!-- <script type="text/javascript" src="CindyGL.js"></script> -->
+  </head>
+
+<body>
+
+
+
+<script id='csinit' type='text/x-cindyscript'>
+showDebugInfo = false;
+renderMode = RENDERMODES.REAL;
+
+startDelay = 0.3;
+pause = if(renderMode == RENDERMODES.FRAMES, 1, 0.1);
+trackData = [
+  1, pause,    // 01    draw mouse 
+  1, pause,    // 02    draw owl 
+  1, pause,    // 03    draw arrow
+  1, 2,    // 04    at start: start
+  0.7, pause    // 05    fade out arrow
+];
+
+
+white = [1,1,1];
+red = [0.8, 0.2, 0.3];
+green = [0.3, 0.8, 0.2];
+blue = [0.2, 0.3, 0.8];
+black = [0,0,0];
+
+
+MOUSE = 1;
+OWL = 2;
+
+speciesData = [
+  ["mouse", sapColor.violet1],
+  ["owl", sapColor.teal1]
+];
+
+
+newEntity(pos, maxSpeed, species) := {
+  "position": pos,
+  "velocity": [0, 0],
+  "maxSpeed": maxSpeed,
+  "target": 0,
+  "trail": [pos],
+  "species": species
+};
+
+
+trailCounterMax = 5;
+trailCounter = trailCounterMax;
+
+
+mouseStart = [-9, -3];
+entities = [
+  newEntity(mouseStart, 4, MOUSE),
+  newEntity([5, 19], 4.5, OWL)
+];
+entities_2.target = entities_1;
+
+
+hunters = [entities_2];
+
+
+calculation() := (
+  trailCounter = trailCounter - 1;
+
+  mouseTime = now() - tracks_4.start;
+  entities_1.position = mouseStart + if(t4 > 0, 1, 0) * 0.8 * entities_1.maxSpeed * [1.1 * mouseTime, 0.8 * sin(2 * mouseTime)];
+
+  forall(hunters,
+    if(#.target != 0,
+      dir = #.target.position - #.position;
+      #.velocity = #.maxSpeed * if(abs(dir) == 0, [0,0], dir / abs(dir));
+    );
+  );
+  forall(hunters,
+  #.position = #.position + if(t4 >= 1, 1, 0) * delta * #.velocity;
+  );
+
+  if(trailCounter <= 0,
+    trailCounter = trailCounterMax;
+    forall(entities,
+      #.trail = #.trail :> #.position;
+    );
+  );
+);
+
+rendering() := (
+
+  if(t4 > 0, 
+    forall(entities,
+      connect(#.trail, color -> speciesData_(#.species)_2, size -> 4);
+    );
+  );
+  draw(entities_2.position, entities_2.position + 1.5 * entities_2.velocity * easeInOutCubic(t3), size -> 10 * easeOutBack(t3), color -> sapColor.teal3, arrow -> true, arrowsize -> 2 * easeOutBack(t3), alpha -> easeInCirc(1 - t5));
+
+  drawimage(entities_1.position, speciesData_(entities_1.species)_1, scale -> 1 * easeOutBack(t1));
+  drawimage(entities_2.position, speciesData_(entities_2.species)_1, scale -> 1 * easeOutBack(t2));
+
+);
+</script>
+
+
+
+
+<canvas id="CSCanvas" align="left" valign="top" width="1024" height="768" style="border:1px solid #000000;"></canvas>
+
+
+
+
+
+
+<script>
+
+var cindy = CindyJS({
+  canvasname:"CSCanvas",
+  scripts:"cs*",
+  images: {
+    mouse: "./imgs/mouse.svg",
+    owl: "./imgs/owl.svg"
+  },
+  use: ["katex"],
+  import: {
+    packages: ["animation"],
+    init: ["color", "sap"]
+  }
+});
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>
