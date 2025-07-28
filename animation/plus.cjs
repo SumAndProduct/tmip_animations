@@ -5,11 +5,12 @@ defaultStrokeColor = [0,0,1];
 defaultTextColor = [0,0,0];
 defaultPointSize = 1;
 defaultLineSize = 10;
-defaultOutlineSizePixel = 10;
+defaultOutlineSizePixel = 0;
 defaultArrowSize = 5;
 defaultTextSize = 120;
-
-
+defaultEdgeArrow = [false, false];
+defaultEdgeSampleRate = 2;
+defaultNodeSize = [6, 6];
 
 /**********************************************************************************************************************************************************
 CAUTION!
@@ -63,7 +64,7 @@ newPoint(pos) := newPoint(pos, {});
 
 
 /**********************************************************************************************************************************************************
-arrow types: empty, full, line, jet
+arrow shapes: empty, full, line, jet
 **********************************************************************************************************************************************************/
 
 
@@ -119,6 +120,7 @@ newLine(pointA, pointB, modifs) := (
 );
 newLine(pointA, pointB) := newLine(pointA, pointB, {});
 
+line2line(line) := join(line.endPoints_1, line.endPoints_2);
 
 newStroke(list, modifs) := (
     regional(res, keys);
@@ -374,11 +376,11 @@ newText(pos, nykaString, modifs) := (
     };  
 
     res.grow := self().write - self().erase;
-    res.alpha := easeOutCirc(self().fadeIn) - easeOutCirc(self().fadeOut) + self().linearFade;
+    res.animationAlpha := easeOutCirc(self().fadeIn) - easeOutCirc(self().fadeOut) + self().linearFade;
     res.trueModifs := {
         "color":             self().color,
         "angle":             self().angle,
-        "alpha":             self().alpha,
+        "alpha":             self().alpha * self().animationAlpha,
         "align":             self().align,
         "colorMap":          self().colorMap,
         "alphaMap":          self().alphaMap
@@ -386,7 +388,7 @@ newText(pos, nykaString, modifs) := (
     res.outlineModifs := {
         "color":             self().outlinecolor,
         "angle":             self().angle,
-        "alpha":             self().alpha,
+        "alpha":             self().alpha * self().animationAlpha,
         "outlinewidth":      self().outlinewidth,
         "outlinecolor":      self().outlinecolor,
         "align":             self().align,
@@ -417,7 +419,7 @@ newNode(pos, modifs) := (
     keys = keys(modifs);
     res = {
         "position":     pos,
-        "size":         if(contains(keys, "size"), modifs.size, [6, 6]),
+        "size":         if(contains(keys, "size"), modifs.size, defaultNodeSize),
         "color":        if(contains(keys, "color"), modifs.color, defaultBackgroundColor),
         "fillAlpha":    if(contains(keys, "fillAlpha"), modifs.fillAlpha, 1),
         "label":        if(contains(keys, "label"), modifs.label, ""),
@@ -520,7 +522,7 @@ newLabelNode(pos, modifs) := (
 
     modifs.fillAlpha = 0;
     modifs.outlineSize = 0;
-    modifs.size = if(contains(keys, "size"), modifs.size, [4, 4]);
+    modifs.size = if(contains(keys, "size"), modifs.size, [6, 6]);
     modifs.corner = if(contains(keys, "corner"), modifs.corner, 2);
     newNode(pos, modifs);
 );
@@ -568,10 +570,10 @@ newEdge(nodeA, nodeB, modifs) := (
     keys = keys(modifs);
 
 
-    sampleRate = if(contains(keys, "sampleRate"), modifs.sampleRate, 32);
+    sampleRate = if(contains(keys, "sampleRate"), modifs.sampleRate, defaultEdgeSampleRate);
     
-    if(!contains(keys, "color"), modifs.color = defaultBackgroundColor);
-    if(!contains(keys, "arrow"), modifs.arrow = [false, true]);
+    if(!contains(keys, "color"), modifs.color = defaultTextColor);
+    if(!contains(keys, "arrow"), modifs.arrow = defaultEdgeArrow);
     if(!contains(keys, "arrowShape"), modifs.arrowShape = "line");
 
     offsetA = if(contains(keys, "offsetA"), modifs.offsetA, 0°);

@@ -50,13 +50,12 @@ roundedRectangleStroke(center, w, h, cornerRadius) := (
     regional(corners);
 
     corners = [];
-    corners = corners :> apply(sampleCircle(cornerRadius, 0.5 * pi, pi), # + center + 0.5 * [-w, h] + cornerRadius * [1, -1]);
-    corners = corners :> apply(sampleCircle(cornerRadius, pi, 1.5 * pi), # + center + 0.5 * [-w, -h] + cornerRadius * [1, 1]);
-    corners = corners :> apply(sampleCircle(cornerRadius, 1.5 * pi, 2 * pi), # + center + 0.5 * [w, -h] + cornerRadius * [-1, 1]);
-    corners = corners :> apply(sampleCircle(cornerRadius, 0, 0.5 * pi), # + center + 0.5 * [w, h] + cornerRadius * [-1, -1]);
-    
+    corners = corners :> sampleCircle(center + 0.5 * [-w, h] + cornerRadius * [1, -1], cornerRadius, 0.5 * pi, pi);
+    corners = corners :> sampleCircle(center + 0.5 * [-w, -h] + cornerRadius * [1, 1], cornerRadius, pi, 1.5 * pi);
+    corners = corners :> sampleCircle(center + 0.5 * [w, -h] + cornerRadius * [-1, 1], cornerRadius, 1.5 * pi, 2 * pi);
+    corners = corners :> sampleCircle(center + 0.5 * [w, h] + cornerRadius * [-1, -1], cornerRadius, 0, 0.5 * pi);
 
-    resample(resample(corners_4_(-1) <: flatten(corners)));
+    resample(corners_4_(-1) <: flatten(corners));
 );
 
 roundedRectangleShape(tl, w, h, r) := roundedRectangleShape(tl, tl + [w,-h], r);
@@ -75,10 +74,9 @@ roundedRectangleShape(tl, br, r) := (
         ++ polygon([tl.xy + [0,-r], tr.xy + [0,-r], br.xy + [0,r], bl.xy + [0,r]]);
 );
 
-sampleCircle(rad) := sampleCircle(rad, 2*pi);
-sampleCircle(rad, angle) := apply(0..strokeSampleRate - 1, rad * [cos(angle * # / (strokeSampleRate - 1)), sin(angle * # / (strokeSampleRate - 1))]);
-sampleCircle(rad, startAngle, endAngle) := apply(0..strokeSampleRate - 1, rad * [cos(startAngle + (endAngle - startAngle) * # / (strokeSampleRate - 1)), sin(startAngle + (endAngle - startAngle) * # / (strokeSampleRate - 1))]);
-
+sampleCircle(center, rad) := sampleCircle(center, rad, 2 * pi);
+sampleCircle(center, rad, angle) := apply(0..strokeSampleRate - 1, center + rad * ang2vec(angle * # / (strokeSampleRate - 1)));
+sampleCircle(center, rad, startAngle, endAngle) := apply(0..strokeSampleRate - 1, center + rad * ang2vec(lerp(startAngle, endAngle, # / (strokeSampleRate - 1))));
 
 
 
@@ -304,6 +302,7 @@ randomSort(list) := (
 
     list;
 );
+shuffle(list) := randomSort(list);
 
 
 
@@ -1128,7 +1127,7 @@ drawFragments(pos, listOfDicts, time, mode) := drawFragments(pos, listOfDicts, t
 
 
 
-
+screenUV(x, y) := [lerp(canvasLeft, canvasRight, x), lerp(canvasBottom, canvasTop, y)];
 
 
 

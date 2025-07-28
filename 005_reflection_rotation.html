@@ -3,7 +3,7 @@
  <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <title>000_reflection_rotation</title>
+    <title>005_reflection_rotation</title>
     <script type="text/javascript" src="Cindy.js"></script>
     <!-- <script type="text/javascript" src="CindyGL.js"></script> -->
   </head>
@@ -18,20 +18,14 @@ renderMode = RENDERMODES.REAL;
 
 startDelay = 0.3;
 pause = if(renderMode == RENDERMODES.FRAMES, 1, 0.1);
+currentTrackIndex = 1;
+
 trackData = [
   1, pause,    // 01    
   1, pause,    // 02    
-  1, pause,    // 03    
-  1, pause,    // 04    
-  1, pause,    // 05    
-  1, pause,    // 06    
-  1, pause,    // 07    
-  1, pause,    // 08    
-  1, pause,    // 09    
-  1, pause,    // 10    
-  1, pause,    // 11    
-  1, pause,    // 12    
-  1, pause     // 13    
+  2, 0,    // 03    
+  2, pause,    // 04    
+  2, pause    // 05    
 ];
 
 
@@ -41,6 +35,17 @@ green = [0.3, 0.8, 0.2];
 blue = [0.2, 0.3, 0.8];
 black = [0,0,0];
 
+origin = canvasCenter + [5, -5];
+
+angle1 = 45°;
+normal1 = ang2vec(angle1);
+dir1 = perp(normal1);
+line1 = newLine(origin - 10 * dir1, origin + 20 * dir1, {"size": 4, "color": red});
+
+angle2 = 85°;
+normal2 = ang2vec(angle2);
+dir2 = perp(normal2);
+line2 = newLine(origin - 10 * dir2, origin + 20 * dir2, {"size": 4, "color": green});
 
 
 
@@ -50,13 +55,52 @@ delayedSetup() := (
 );
 
 calculation() := (
+  w = lerp(0, 6, easeOutBack(t1));
+  a = origin + [-5 - w, 8];
+  b = origin + [-5 + w, 8];
+  c = a + [0, 2 * w];
+
+  ladder = ladder(2, 2, 0.5);
+  line1.ink = ladder.doStep;
+  line2.ink = ladder.doStep;
+
+  aa = (a - origin) - 2 * ((a - origin) * normal1) * normal1 + origin;
+  bb = (b - origin) - 2 * ((b - origin) * normal1) * normal1 + origin;
+  cc = (c - origin) - 2 * ((c - origin) * normal1) * normal1 + origin;
+
+  aaa = (aa - origin) - 2 * ((aa - origin) * normal2) * normal2 + origin;
+  bbb = (bb - origin) - 2 * ((bb - origin) * normal2) * normal2 + origin;
+  ccc = (cc - origin) - 2 * ((cc - origin) * normal2) * normal2 + origin;
+
+  aaa = rotate(aaa, -2 * (angle2 - angle1) * easeInOutCubic(t5), origin);
+  bbb = rotate(bbb, -2 * (angle2 - angle1) * easeInOutCubic(t5), origin);
+  ccc = rotate(ccc, -2 * (angle2 - angle1) * easeInOutCubic(t5), origin);
+
 
 
 );
 
 rendering() := (
+  fillpoly(canvasPoly, color -> white);
+  line1.draw;
+  line2.draw;
+
+  drawimage(a, b, c, "pikachu");
+  drawimage(lerp(a, aa, easeInOutCubic(t3)), lerp(b, bb, easeInOutCubic(t3)), lerp(c, cc, easeInOutCubic(t3)), "pikachu", alpha -> easeOutCirc(t3) * 0.7 * easeInCirc(1 - t5));
+  drawimage(lerp(aa, aaa, easeInOutCubic(t4)), lerp(bb, bbb, easeInOutCubic(t4)), lerp(cc, ccc, easeInOutCubic(t4)), "pikachu", alpha -> easeOutCirc(t4) * 0.4);
 
 
+
+  // ***** DEBUG *****
+
+
+  //draw(a, color -> (1, 0, 0));
+  //draw(b, color -> (1, 0, 0));
+  //draw(c, color -> (1, 0, 0));
+  //draw(aa, color -> (0, 1, 0));
+  //draw(bb, color -> (0, 1, 0));
+  //draw(cc, color -> (0, 1, 0));
+  //draw(canvasCenter);
 );
 </script>
 
