@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>006_hilbert_curve</title>
+    <script type="text/javascript" src="Cindy.js"></script>
+    <!-- <script type="text/javascript" src="CindyGL.js"></script> -->
+  </head>
+
+<body>
+
+
+
+<script id='csinit' type='text/x-cindyscript'>
+showDebugInfo = false;
+renderMode = RENDERMODES.REAL;
+
+startDelay = 0.3;
+pause = if(renderMode == RENDERMODES.FRAMES, 1, 0.1);
+trackData = [
+  0.7, pause,    // 01    draw first iteration + grid1
+  0.7, 0,    // 02    replacement 1 + fade out first iteration halfway
+  0.7, 0,    // 03    replacement 2
+  0.7, 0,    // 04    replacement 3
+  1, pause,    // 05    replacement 4
+  1, pause,    // 06    connect + fade out first iteration completely
+  0.7, pause,    // 07    show grid2
+  4, pause,    // 08    show replacements of next iteration + fade out second iteration half
+  0.7, pause,    // 09    connect + fade out second iteration completely
+  0.7, pause,    // 10    jump to iteration 4
+  0.7, pause,    // 11    jump to iteration 5
+  0.7, pause,    // 12    jump to iteration 6
+  0.7, pause,    // 13    jump to iteration 7
+  0.7, pause,    // 14    fade to light grey
+  45, pause    // 15    draw curve 7 as curve
+];
+
+
+white = [1,1,1];
+red = [0.8, 0.2, 0.3];
+green = 0.9 * [0.3, 0.8, 0.2];
+blue = [0.2, 0.3, 0.8];
+black = [0,0,0];
+
+
+
+
+hilbertStrings = [];
+
+hilbert(n) := (
+  string = "A";
+  repeat(n,
+    string = replace(string, [["A","+BF-AFA-FB+"], ["B","-AF+BFB+FA-"]]);
+    hilbertStrings = hilbertStrings :> string;
+  );
+  hilbertStrings = apply(hilbertStrings, replace(#, [["A",""], ["B",""]]));
+
+  forall(hilbertStrings, string,
+    point = [0, 0];
+    dir = [1, 0];
+    res = [point];
+    while(length(string) > 0,
+      command = string_1;
+      if(command == "F", 
+        point = point + dir;
+        res = res :> point;
+      ,if(command == "+",
+        dir = perp(dir);
+      ,if(command == "-", 
+        dir = -perp(dir);
+      )));
+
+      string = sum(bite(string));
+    );
+
+    hilbertCurves = hilbertCurves :> res;
+  );
+);
+
+
+
+
+//hilbert(7);
+
+frameSize = 20;
+framePosition = canvasCenter;
+frame = expandRect(framePosition, frameSize, frameSize, 5);
+
+
+/*
+hilbertCurves = apply(hilbertCurves, curve, index,
+  apply(curve, framePosition + frameSize * 0.5 * [-1, -1] + [1, 1] * frameSize / 2^(index + 1) + # * frameSize / 2^index);
+);
+println(hilbertCurves);
+*/
+
+
+grid1 = [
+  [framePosition + 0.5 * [0, 1] * frameSize, framePosition - 0.5 * [0, 1] * frameSize],
+  [framePosition + 0.5 * [1, 0] * frameSize, framePosition - 0.5 * [1, 0] * frameSize]
+];
+
+grid2 = [
+  [framePosition + 0.5 * [-0.5, 1] * frameSize, framePosition - 0.5 * [0.5, 1] * frameSize],
+  [framePosition + 0.5 * [0.5, 1] * frameSize, framePosition - 0.5 * [-0.5, 1] * frameSize],
+
+  [framePosition + 0.5 * [1, -0.5] * frameSize, framePosition - 0.5 * [1, 0.5] * frameSize],
+  [framePosition + 0.5 * [1, 0.5] * frameSize, framePosition - 0.5 * [1, -0.5] * frameSize]
+];
+
+
+size(n) := lerp(10, 2, n, 1, 7);
+  
+
+finalStroke = consecutive(hilbertCurves_7);
+
+
+currentTrackIndex = 1;
+
+
+
+
+
+delayedSetup() := (
+
+
+);
+
+calculation() := (
+
+
+);
+
+rendering() := (
+  fillPoly(canvasPoly, color -> white);
+  
+  forall(grid1,
+    draw(#, color -> 0.5 * white, size -> 1, alpha -> t1 - t9);
+  );
+  forall(grid2,
+    draw(#, color -> 0.5 * white, size -> 1, alpha -> t7 - t9);
+  );
+  drawpoly(frame, color -> black, size -> 2);
+
+  connect(hilbertCurves_1, color -> white, size -> size(1) + 6, alpha -> t1 - 0.7 * t2 - 0.3 * t6);
+  connect(hilbertCurves_1, color -> blue, size -> size(1), alpha -> t1 - 0.7 * t2 - 0.3 * t6);
+
+  ladder = extractedLadder(8, 4, 0.9);
+
+
+
+  if(t7 <= 0,
+        connect(hilbertCurves_2_(1..4), color -> white, size -> size(2) + 6, alpha -> t2);
+        connect(hilbertCurves_2_(5..8), color -> white, size -> size(2) + 6, alpha -> t3);
+        connect(hilbertCurves_2_(9..12), color -> white, size -> size(2) + 6, alpha -> t4);
+        connect(hilbertCurves_2_(13..16), color -> white, size -> size(2) + 6, alpha -> t5);
+        connect(hilbertCurves_2_(1..4), color -> red, size -> size(2), alpha -> t2);
+        connect(hilbertCurves_2_(5..8), color -> red, size -> size(2), alpha -> t3);
+        connect(hilbertCurves_2_(9..12), color -> red, size -> size(2), alpha -> t4);
+        connect(hilbertCurves_2_(13..16), color -> red, size -> size(2), alpha -> t5);
+
+        draw(hilbertCurves_2_[4, 5], color -> red, size -> size(2), alpha -> t6);
+        draw(hilbertCurves_2_[8, 9], color -> red, size -> size(2), alpha -> t6);
+        draw(hilbertCurves_2_[12, 13], color -> red, size -> size(2), alpha -> t6);
+
+  , // else //
+    connect(hilbertCurves_2, color -> white, size -> size(2) + 6, alpha -> 1 - 0.7 * ladder_1 - 0.3 * t9);
+    connect(hilbertCurves_2, color -> red, size -> size(2), alpha -> 1 - 0.7 * ladder_1 - 0.3 * t9);
+  );
+
+  if(t10 <= 0,
+    forall(1..4,
+      connect(hilbertCurves_3_((16 * (# - 1) + 1)..(16 * #)), color -> white, size -> size(3) + 6, alpha -> ladder_#);
+      connect(hilbertCurves_3_((16 * (# - 1) + 1)..(16 * #)), color -> green, size -> size(3), alpha -> ladder_#);
+    );
+    forall(1..15,
+        draw(hilbertCurves_3_[4 * #, 4 * # + 1], color -> green, size -> size(3), alpha -> t9);
+    );
+  , // else //
+    if(t11 <= 0,
+      connect(hilbertCurves_4, color -> red, size -> size(4));
+    , // else //
+      if(t12 <= 0,
+        connect(hilbertCurves_5, color -> blue, size -> size(5));
+      , // else //
+        if(t13 <= 0,
+          connect(hilbertCurves_6, color -> green, size -> size(6));
+        , // else //
+            connect(hilbertCurves_7, color -> lerp(red, 0.8 * white, t14), size -> size(7));
+            forall(1..lerp(0, length(finalStroke), t15),
+              connect(finalStroke_#, color -> blendLCH([0.2,0.1,1], [1,0.8,0.1], # / length(finalStroke)), size -> 6);
+            );
+        );
+      );
+    );
+  );
+  
+
+
+);  
+</script>
+
+
+
+
+<canvas id="CSCanvas" align="left" valign="top" width="1024" height="768" style="border:1px solid #000000;"></canvas>
+
+
+
+
+
+
+<script>
+
+var cindy = CindyJS({
+  canvasname:"CSCanvas",
+  scripts:"cs*",
+  images: {},
+  use: ["katex"],
+  import: {
+    packages: ["animation"],
+    init: ["color", "hilbertData"]
+  }
+});
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>

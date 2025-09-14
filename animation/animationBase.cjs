@@ -55,7 +55,7 @@ roundedRectangleStroke(center, w, h, cornerRadius) := (
     corners = corners :> sampleCircle(center + 0.5 * [w, -h] + cornerRadius * [-1, 1], cornerRadius, 1.5 * pi, 2 * pi);
     corners = corners :> sampleCircle(center + 0.5 * [w, h] + cornerRadius * [-1, -1], cornerRadius, 0, 0.5 * pi);
 
-    resample(corners_4_(-1) <: flatten(corners));
+    corners_4_(-1) <: flatten(corners);
 );
 
 roundedRectangleShape(tl, w, h, r) := roundedRectangleShape(tl, tl + [w,-h], r);
@@ -463,6 +463,18 @@ ladder(trackIndex, amount, separation) := (
 
     res;
 ); 
+extractedLadder(trackIndex, amount, separation) := (
+    regional(res, ladder);
+
+    res = [];
+    ladder = ladder(trackIndex, amount, separation);
+
+    repeat(amount, 
+        res = res :> ladder.doStep;
+    );
+
+    res;
+);
 
 
 
