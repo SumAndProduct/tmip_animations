@@ -1676,7 +1676,8 @@ defaultStrokeColor = [0,0,1];
 defaultTextColor = [0,0,0];
 defaultPointSize = 1;
 defaultLineSize = 10;
-defaultOutlineSizePixel = 0;
+defaultOutlineSizePixel = 10;
+defaultOutlineSizeCindy = defaultOutlineSizePixel / screenresolution();
 defaultArrowSize = 5;
 defaultTextSize = 120;
 defaultEdgeArrow = [false, true];
@@ -1739,7 +1740,7 @@ newPoint(pos, modifs) := (
         "alpha":             if(contains(keys, "alpha"), modifs.alpha, 1),
         "size":              if(contains(keys, "size"), modifs.size, defaultPointSize),
         "color":             if(contains(keys, "color"), modifs.color, defaultPointColor),
-        "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, outlineSizeCindy),
+        "outlineSize":       if(contains(keys, "outlineSize"), modifs.outlineSize, defaultOutlineSizeCindy),
         "outlineColor":      if(contains(keys, "outlineColor"), modifs.outlineColor, defaultBackgroundColor),
         "bounceGrow":        if(contains(keys, bounceGrow), modifs.bounceGrow, 0),
         "bounceShrink":      if(contains(keys, bounceShrink), modifs.bounceShrink, 0),

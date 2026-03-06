@@ -16,24 +16,6 @@
 showDebugInfo = false;
 renderMode = RENDERMODES.REAL;
 
-startDelay = 0.3;
-pause = if(renderMode == RENDERMODES.FRAMES, 1, 0.1);
-trackData = [
-  1, pause,    // 01    
-  1, pause,    // 02    
-  1, pause,    // 03    
-  1, pause,    // 04    
-  1, pause,    // 05    
-  1, pause,    // 06    
-  1, pause,    // 07    
-  1, pause,    // 08    
-  1, pause,    // 09    
-  1, pause,    // 10    
-  1, pause,    // 11    
-  1, pause,    // 12    
-  1, pause     // 13    
-];
-
 
 white = [1,1,1];
 red = [0.8, 0.2, 0.3];
@@ -41,21 +23,34 @@ green = [0.3, 0.8, 0.2];
 blue = [0.2, 0.3, 0.8];
 black = [0,0,0];
 
+// *************************
 
 
 
-delayedSetup() := (
+
+
+
+
+// *************************
+
+animate([]);
+pause();
+
+
+
+// *************************
+
+
+delayedSetup() := ();
+
+update() := (
 
 
 );
 
-calculation() := (
+render() := (
+  fillpoly(canvasPoly, color -> white);
 
-
-);
-
-rendering() := (
-  fillcolor(canvasPoly, color -> white);
 
 );
 </script>
